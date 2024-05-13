@@ -16,10 +16,14 @@
     background-color: #f0f0f0;
   }
   #game-board {
-    display: grid;
-    grid-template-columns: repeat(6, 15vw);
-    grid-gap: 2vw;
-    margin-top: 5vh;
+    display: flex;
+    justify-content: space-between;
+    width: 90vw;
+  }
+  .color-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2vw;
   }
   .color-block {
     width: 15vw;
@@ -56,18 +60,8 @@
 </head>
 <body>
 <div id="game-board">
-  <div class="color-block" style="background-color: #FF9999;" data-color="1">1</div>
-  <div class="color-block" style="background-color: #FFB3B3;" data-color="2">2</div>
-  <div class="color-block" style="background-color: #FFCCCC;" data-color="3">3</div>
-  <div class="color-block" style="background-color: #FFE6E6;" data-color="4">4</div>
-  <div class="color-block" style="background-color: #CCFF99;" data-color="5">5</div>
-  <div class="color-block" style="background-color: #E6FFCC;" data-color="6">6</div>
-  <div class="color-block" style="background-color: #FF9999;" data-color="1">1</div>
-  <div class="color-block" style="background-color: #FFB3B3;" data-color="2">2</div>
-  <div class="color-block" style="background-color: #FFCCCC;" data-color="3">3</div>
-  <div class="color-block" style="background-color: #FFE6E6;" data-color="4">4</div>
-  <div class="color-block" style="background-color: #CCFF99;" data-color="5">5</div>
-  <div class="color-block" style="background-color: #E6FFCC;" data-color="6">6</div>
+  <div id="left-column" class="color-column"></div>
+  <div id="right-column" class="color-column"></div>
 </div>
 <button id="start-button">Start</button>
 <div id="timer">Zeit: 60</div>
@@ -75,59 +69,106 @@
 <script>
   let selectedBlock = null;
   let pairs = 0;
-  let highscore = 0;
+  let highscore = localStorage.getItem('highscore') || 0;
   let timeLeft = 60;
+  let difficulty = 1;
   const timerElement = document.getElementById('timer');
   const highscoreElement = document.getElementById('highscore');
-  const blocks = document.querySelectorAll('.color-block');
+  const leftColumn = document.getElementById('left-column');
+  const rightColumn = document.getElementById('right-column');
   let timerInterval;
+
+  highscoreElement.innerText = `Highscore: ${highscore}`;
+
+  function generateRandomColor(baseColor, variation) {
+    const base = parseInt(baseColor.slice(1), 16);
+    const r = (base >> 16) + Math.floor((Math.random() - 0.5) * variation);
+    const g = ((base >> 8) & 0xFF) + Math.floor((Math.random() - 0.5) * variation);
+    const b = (base & 0xFF) + Math.floor((Math.random() - 0.5) * variation);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  }
+
+  function generateColors() {
+    const baseColor = '#FFCCCC';
+    const variation = Math.floor(100 / difficulty);
+    const colors = [];
+    for (let i = 0; i < 6; i++) {
+      colors.push(generateRandomColor(baseColor, variation));
+    }
+    return colors;
+  }
+
+  function setupGame() {
+    const colors = generateColors();
+    const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
+    leftColumn.innerHTML = '';
+    rightColumn.innerHTML = '';
+    colors.forEach((color, index) => {
+      const leftBlock = document.createElement('div');
+      leftBlock.className = 'color-block';
+      leftBlock.style.backgroundColor = color;
+      leftBlock.dataset.color = index;
+
+      const rightBlock = document.createElement('div');
+      rightBlock.className = 'color-block';
+      rightBlock.style.backgroundColor = shuffledColors[index];
+      rightBlock.dataset.color = colors.indexOf(shuffledColors[index]);
+
+      leftColumn.appendChild(leftBlock);
+      rightColumn.appendChild(rightBlock);
+
+      leftBlock.addEventListener('click', handleBlockClick);
+      rightBlock.addEventListener('click', handleBlockClick);
+    });
+  }
+
+  function handleBlockClick(event) {
+    const block = event.target;
+    if (selectedBlock) {
+      if (selectedBlock.dataset.color === block.dataset.color && selectedBlock !== block) {
+        selectedBlock.style.border = '2px solid green';
+        block.style.border = '2px solid green';
+        pairs++;
+        if (pairs === 6) {
+          clearInterval(timerInterval);
+          highscore++;
+          localStorage.setItem('highscore', highscore);
+          highscoreElement.innerText = `Highscore: ${highscore}`;
+          alert('Gewonnen! Highscore: ' + highscore);
+          difficulty++;
+          resetGame();
+        }
+      } else {
+        selectedBlock.style.border = '';
+      }
+      selectedBlock = null;
+    } else {
+      selectedBlock = block;
+      block.style.border = '2px solid blue';
+    }
+  }
 
   function resetGame() {
     pairs = 0;
     timeLeft = 60;
     timerElement.innerText = `Zeit: ${timeLeft}`;
-    blocks.forEach(block => {
-      block.style.border = '';
-    });
-    selectedBlock = null;
+    setupGame();
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
       timeLeft--;
       timerElement.innerText = `Zeit: ${timeLeft}`;
       if (timeLeft === 0) {
         clearInterval(timerInterval);
-        alert('Zeit abgelaufen! Highscore: ' + pairs);
-        highscore = Math.max(highscore, pairs);
-        highscoreElement.innerText = `Highscore: ${highscore}`;
+        alert('Zeit abgelaufen! Highscore: ' + highscore);
+        difficulty = 1;
+        resetGame();
       }
     }, 1000);
   }
 
   document.getElementById('start-button').addEventListener('click', resetGame);
 
-  blocks.forEach(block => {
-    block.addEventListener('click', event => {
-      if (selectedBlock) {
-        if (selectedBlock.dataset.color === block.dataset.color && selectedBlock !== block) {
-          selectedBlock.style.border = '2px solid green';
-          block.style.border = '2px solid green';
-          pairs++;
-          if (pairs === 6) {
-            clearInterval(timerInterval);
-            alert('Gewonnen! Highscore: ' + pairs);
-            highscore = Math.max(highscore, pairs);
-            highscoreElement.innerText = `Highscore: ${highscore}`;
-          }
-        } else {
-          selectedBlock.style.border = '';
-        }
-        selectedBlock = null;
-      } else {
-        selectedBlock = block;
-        block.style.border = '2px solid blue';
-      }
-    });
-  });
+  window.onload = setupGame;
 </script>
 </body>
 </html>

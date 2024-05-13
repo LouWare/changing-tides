@@ -219,7 +219,7 @@
             highscore++;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
-            saveHighscore(username, highscore);
+            updateHighscore(username, highscore);
             alert('Gewonnen! Highscore: ' + highscore);
             difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
             resetGame();
@@ -256,21 +256,30 @@
       clearInterval(timerInterval);
     }
 
-    function saveHighscore(username, score) {
-      const newScoreKey = firebase.database().ref().child('highscores').push().key;
-      firebase.database().ref('highscores/' + newScoreKey).set({
-        username: username,
-        score: score,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
+    function updateHighscore(username, score) {
+      const userRef = firebase.database().ref('highscores/' + username);
+      userRef.once('value', (snapshot) => {
+        if (snapshot.exists()) {
+          const existingScore = snapshot.val().score;
+          if (score > existingScore) {
+            userRef.update({ score: score });
+          }
+        } else {
+          userRef.set({ username: username, score: score });
+        }
+        loadHighscores();
       });
-      loadHighscores();
     }
 
     function loadHighscores() {
       firebase.database().ref('highscores').orderByChild('score').limitToLast(10).once('value', (snapshot) => {
         highscoreListElement.innerHTML = 'Top Highscores:<br>';
+        const highscores = [];
         snapshot.forEach((childSnapshot) => {
-          const highscoreData = childSnapshot.val();
+          highscores.push(childSnapshot.val());
+        });
+        highscores.reverse(); // Um die Reihenfolge von hoch nach niedrig zu sortieren
+        highscores.forEach((highscoreData) => {
           highscoreListElement.innerHTML += `${highscoreData.username}: ${highscoreData.score}<br>`;
         });
       });

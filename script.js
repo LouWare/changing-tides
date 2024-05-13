@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let selectedBlock = null;
   let pairs = 0;
   let highscore = localStorage.getItem('highscore') || 0;
+  let roundWins = localStorage.getItem('roundWins') || 0; // Speichere die Anzahl der nacheinander gewonnenen Runden
   let timeLeft = 60;
   let difficulty = 1;
   let timerStarted = false;
@@ -124,10 +125,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
         pairs++;
         if (pairs === 6) {
           clearInterval(timerInterval);
-          highscore++;
-          localStorage.setItem('highscore', highscore);
-          highscoreElement.innerText = `Highscore: ${highscore}`;
-          updateHighscore(username, highscore);
+          roundWins++;
+          localStorage.setItem('roundWins', roundWins);
+          if (roundWins > highscore) {
+            highscore = roundWins;
+            localStorage.setItem('highscore', highscore);
+            highscoreElement.innerText = `Highscore: ${highscore}`;
+            updateHighscore(username, highscore);
+          }
           alert('Gewonnen! Highscore: ' + highscore);
           difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
           resetGame();
@@ -149,6 +154,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       if (timeLeft === 0) {
         clearInterval(timerInterval);
         alert('Zeit abgelaufen! Highscore: ' + highscore);
+        roundWins = 0;
+        localStorage.setItem('roundWins', roundWins);
         difficulty = 1;
         resetGame();
       }

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let selectedBlock = null;
   let pairs = 0;
   let highscore = localStorage.getItem('highscore') || 0;
-  let roundWins = localStorage.getItem('roundWins') || 0; // Speichere die Anzahl der nacheinander gewonnenen Runden
+  let roundWins = 0;
   let timeLeft = 60;
   let difficulty = 1;
   let timerStarted = false;
@@ -40,7 +40,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   if (username) {
     usernameContainer.style.display = 'none';
-    showGame();
+    checkRoundWins(username).then((wins) => {
+      roundWins = wins;
+      showGame();
+    });
   }
 
   startButton.addEventListener('click', () => {
@@ -52,7 +55,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
             localStorage.setItem('username', username);
             saveUsername(username);
             usernameContainer.style.display = 'none';
-            showGame();
+            checkRoundWins(username).then((wins) => {
+              roundWins = wins;
+              showGame();
+            });
           } else {
             alert('Dieser Benutzername ist bereits vergeben. Bitte wähle einen anderen Namen.');
           }
@@ -126,7 +132,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (pairs === 6) {
           clearInterval(timerInterval);
           roundWins++;
-          localStorage.setItem('roundWins', roundWins);
+          updateRoundWins(username, roundWins);
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         clearInterval(timerInterval);
         alert('Zeit abgelaufen! Highscore: ' + highscore);
         roundWins = 0;
-        localStorage.setItem('roundWins', roundWins);
+        updateRoundWins(username, roundWins);
         difficulty = 1;
         resetGame();
       }
@@ -209,9 +215,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
     firebase.database().ref('usernames/' + username).set(true);
   }
 
+  function checkRoundWins(username) {
+    return firebase.database().ref('roundWins/' + username).once('value')
+      .then(snapshot => snapshot.exists() ? snapshot.val().wins : 0);
+  }
+
+  function updateRoundWins(username, wins) {
+    firebase.database().ref('roundWins/' + username).set({ wins: wins });
+  }
+
   window.onload = () => {
     if (username) {
-      showGame();
+      checkRoundWins(username).then((wins) => {
+        roundWins = wins;
+        showGame();
+      });
     }
   };
 });

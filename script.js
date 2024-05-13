@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             updateHighscore(username, highscore);
           }
           alert('Gewonnen! Highscore: ' + highscore);
-          difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
+          difficulty = Math.min(difficulty + 0.2, 10);  // Schwierigkeit langsamer erhöhen
           resetGame();
         }
       } else {

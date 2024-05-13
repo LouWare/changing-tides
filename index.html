@@ -49,6 +49,11 @@
     font-size: 5vw;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   }
+  #highscore-list {
+    margin-top: 5vh;
+    font-size: 4vw;
+    text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -58,19 +63,14 @@
 </div>
 <div id="timer">Zeit: 60</div>
 <div id="highscore">Highscore: 0</div>
-
-
-<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<div id="highscore-list"></div>
 <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js"></script>
-
-<!-- Add Firebase products that you want to use -->
 <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js"></script>
 
 <script>
   // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+  const firebaseConfig = {
   apiKey: "AIzaSyBe-bWNvD8oTHZ7K6XATeNqB5o5tTcpC_0",
   authDomain: "changing-tides-2e060.firebaseapp.com",
   databaseURL: "https://changing-tides-2e060-default-rtdb.europe-west1.firebasedatabase.app/",
@@ -82,25 +82,9 @@ const firebaseConfig = {
 };
 
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
+  const app = firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-<script>
   let selectedBlock = null;
   let pairs = 0;
   let highscore = localStorage.getItem('highscore') || 0;
@@ -109,6 +93,7 @@ const firebaseConfig = {
   let timerStarted = false;
   const timerElement = document.getElementById('timer');
   const highscoreElement = document.getElementById('highscore');
+  const highscoreListElement = document.getElementById('highscore-list');
   const leftColumn = document.getElementById('left-column');
   const rightColumn = document.getElementById('right-column');
   let timerInterval;
@@ -173,6 +158,7 @@ const firebaseConfig = {
           highscore++;
           localStorage.setItem('highscore', highscore);
           highscoreElement.innerText = `Highscore: ${highscore}`;
+          saveHighscore(highscore);
           alert('Gewonnen! Highscore: ' + highscore);
           difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
           resetGame();
@@ -209,7 +195,29 @@ const firebaseConfig = {
     clearInterval(timerInterval);
   }
 
-  window.onload = setupGame;
+  function saveHighscore(score) {
+    const newScoreKey = firebase.database().ref().child('highscores').push().key;
+    firebase.database().ref('highscores/' + newScoreKey).set({
+      score: score,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+    loadHighscores();
+  }
+
+  function loadHighscores() {
+    firebase.database().ref('highscores').orderByChild('score').limitToLast(10).once('value', (snapshot) => {
+      highscoreListElement.innerHTML = 'Top Highscores:<br>';
+      snapshot.forEach((childSnapshot) => {
+        const highscoreData = childSnapshot.val();
+        highscoreListElement.innerHTML += `${highscoreData.score}<br>`;
+      });
+    });
+  }
+
+  window.onload = () => {
+    setupGame();
+    loadHighscores();
+  };
 </script>
 </body>
 </html>

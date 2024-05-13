@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farbverbindungs-Spiel für Mobilgeräte</title>
+<style>
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f0f0f0;
+  }
+  #game-board {
+    display: grid;
+    grid-template-columns: repeat(6, 15vw);
+    grid-gap: 2vw;
+    margin-top: 5vh;
+  }
+  .color-block {
+    width: 15vw;
+    height: 15vw;
+    border-radius: 10%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4vw;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+  #timer, #highscore {
+    margin-top: 5vh;
+    font-size: 5vw;
+  }
+  #start-button {
+    margin-top: 5vh;
+    padding: 2vh 5vw;
+    font-size: 5vw;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5vw;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3);
+  }
+  #start-button:active {
+    box-shadow: 0px 2px 3px rgba(0, 123, 255, 0.3);
+  }
+</style>
+</head>
+<body>
+<div id="game-board">
+  <div class="color-block" style="background-color: #FF9999;" data-color="1">1</div>
+  <div class="color-block" style="background-color: #FFB3B3;" data-color="2">2</div>
+  <div class="color-block" style="background-color: #FFCCCC;" data-color="3">3</div>
+  <div class="color-block" style="background-color: #FFE6E6;" data-color="4">4</div>
+  <div class="color-block" style="background-color: #CCFF99;" data-color="5">5</div>
+  <div class="color-block" style="background-color: #E6FFCC;" data-color="6">6</div>
+  <div class="color-block" style="background-color: #FF9999;" data-color="1">1</div>
+  <div class="color-block" style="background-color: #FFB3B3;" data-color="2">2</div>
+  <div class="color-block" style="background-color: #FFCCCC;" data-color="3">3</div>
+  <div class="color-block" style="background-color: #FFE6E6;" data-color="4">4</div>
+  <div class="color-block" style="background-color: #CCFF99;" data-color="5">5</div>
+  <div class="color-block" style="background-color: #E6FFCC;" data-color="6">6</div>
+</div>
+<button id="start-button">Start</button>
+<div id="timer">Zeit: 60</div>
+<div id="highscore">Highscore: 0</div>
+<script>
+  let selectedBlock = null;
+  let pairs = 0;
+  let highscore = 0;
+  let timeLeft = 60;
+  const timerElement = document.getElementById('timer');
+  const highscoreElement = document.getElementById('highscore');
+  const blocks = document.querySelectorAll('.color-block');
+  let timerInterval;
+
+  function resetGame() {
+    pairs = 0;
+    timeLeft = 60;
+    timerElement.innerText = `Zeit: ${timeLeft}`;
+    blocks.forEach(block => {
+      block.style.border = '';
+    });
+    selectedBlock = null;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerElement.innerText = `Zeit: ${timeLeft}`;
+      if (timeLeft === 0) {
+        clearInterval(timerInterval);
+        alert('Zeit abgelaufen! Highscore: ' + pairs);
+        highscore = Math.max(highscore, pairs);
+        highscoreElement.innerText = `Highscore: ${highscore}`;
+      }
+    }, 1000);
+  }
+
+  document.getElementById('start-button').addEventListener('click', resetGame);
+
+  blocks.forEach(block => {
+    block.addEventListener('click', event => {
+      if (selectedBlock) {
+        if (selectedBlock.dataset.color === block.dataset.color && selectedBlock !== block) {
+          selectedBlock.style.border = '2px solid green';
+          block.style.border = '2px solid green';
+          pairs++;
+          if (pairs === 6) {
+            clearInterval(timerInterval);
+            alert('Gewonnen! Highscore: ' + pairs);
+            highscore = Math.max(highscore, pairs);
+            highscoreElement.innerText = `Highscore: ${highscore}`;
+          }
+        } else {
+          selectedBlock.style.border = '';
+        }
+        selectedBlock = null;
+      } else {
+        selectedBlock = block;
+        block.style.border = '2px solid blue';
+      }
+    });
+  });
+</script>
+</body>
+</html>

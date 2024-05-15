@@ -129,6 +129,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         selectedBlock.style.border = '2px solid green';
         block.style.border = '2px solid green';
         pairs++;
+        block.removeEventListener('click', handleBlockClick);
+        selectedBlock.removeEventListener('click', handleBlockClick);
         if (pairs === 6) {
           clearInterval(timerInterval);
           roundWins++;
@@ -139,8 +141,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          alert('Gewonnen! Highscore: ' + highscore);
-          difficulty = Math.min(difficulty + 0.2, 10);  // Schwierigkeit langsamer erhöhen
+          difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
           resetGame();
         }
       } else {
@@ -159,7 +160,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       timerElement.innerText = `Zeit: ${timeLeft}`;
       if (timeLeft === 0) {
         clearInterval(timerInterval);
-        alert('Zeit abgelaufen! Highscore: ' + highscore);
         roundWins = 0;
         updateRoundWins(username, roundWins);
         difficulty = 1;

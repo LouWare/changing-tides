@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const startButton = document.getElementById('start-button');
   const timerElement = document.getElementById('timer');
   const highscoreElement = document.getElementById('highscore');
-  const difficultyElement = document.getElementById('difficulty');
   const highscoreListElement = document.getElementById('highscore-list');
   const leftColumn = document.getElementById('left-column');
   const rightColumn = document.getElementById('right-column');
@@ -38,14 +37,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let timerInterval;
 
   highscoreElement.innerText = `Highscore: ${highscore}`;
-  difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
 
   if (username) {
     usernameContainer.style.display = 'none';
     loadProgress(username).then((progress) => {
       roundWins = progress.roundWins;
       difficulty = progress.difficulty;
-      difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
       showGame();
     });
   } else {
@@ -64,7 +61,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             loadProgress(username).then((progress) => {
               roundWins = progress.roundWins;
               difficulty = progress.difficulty;
-              difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
               showGame();
             });
           } else {
@@ -78,7 +74,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     gameBoard.style.display = 'flex';
     timerElement.style.display = 'block';
     highscoreElement.style.display = 'block';
-    difficultyElement.style.display = 'block';
     highscoreListElement.style.display = 'block';
     setupGame();
     loadHighscores();
@@ -151,7 +146,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             updateHighscore(username, highscore);
           }
           difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
-          difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
           resetGame();
         }
       } else {
@@ -210,14 +204,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function loadHighscores() {
     firebase.database().ref('highscores').orderByChild('score').limitToLast(10).once('value', (snapshot) => {
-      highscoreListElement.innerHTML = 'Top Highscores:<br>';
+      highscoreListElement.innerHTML = '<h3>Top Highscores:</h3>';
       const highscores = [];
       snapshot.forEach((childSnapshot) => {
         highscores.push(childSnapshot.val());
       });
       highscores.reverse(); // Um die Reihenfolge von hoch nach niedrig zu sortieren
       highscores.forEach((highscoreData) => {
-        highscoreListElement.innerHTML += `${highscoreData.username}: ${highscoreData.score}<br>`;
+        highscoreListElement.innerHTML += `<div>${highscoreData.username}: ${highscoreData.score}</div>`;
       });
     });
   }
@@ -245,7 +239,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       loadProgress(username).then((progress) => {
         roundWins = progress.roundWins;
         difficulty = progress.difficulty;
-        difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
         showGame();
       });
     }

@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const startButton = document.getElementById('start-button');
   const timerElement = document.getElementById('timer');
   const highscoreElement = document.getElementById('highscore');
+  const difficultyElement = document.getElementById('difficulty');
   const highscoreListElement = document.getElementById('highscore-list');
   const leftColumn = document.getElementById('left-column');
   const rightColumn = document.getElementById('right-column');
@@ -37,11 +38,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let timerInterval;
 
   highscoreElement.innerText = `Highscore: ${highscore}`;
+  difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
 
   if (username) {
     usernameContainer.style.display = 'none';
-    checkRoundWins(username).then((wins) => {
-      roundWins = wins;
+    loadProgress(username).then((progress) => {
+      roundWins = progress.roundWins;
+      difficulty = progress.difficulty;
+      difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
       showGame();
     });
   } else {
@@ -57,8 +61,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
             localStorage.setItem('username', username);
             saveUsername(username);
             usernameContainer.style.display = 'none';
-            checkRoundWins(username).then((wins) => {
-              roundWins = wins;
+            loadProgress(username).then((progress) => {
+              roundWins = progress.roundWins;
+              difficulty = progress.difficulty;
+              difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
               showGame();
             });
           } else {
@@ -72,6 +78,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     gameBoard.style.display = 'flex';
     timerElement.style.display = 'block';
     highscoreElement.style.display = 'block';
+    difficultyElement.style.display = 'block';
     highscoreListElement.style.display = 'block';
     setupGame();
     loadHighscores();
@@ -136,7 +143,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (pairs === 6) {
           clearInterval(timerInterval);
           roundWins++;
-          updateRoundWins(username, roundWins);
+          updateProgress(username, roundWins, difficulty + 0.5);
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
@@ -144,10 +151,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
             updateHighscore(username, highscore);
           }
           difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
+          difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
           resetGame();
         }
       } else {
+        // Falsch verbunden, Fortschritt zurücksetzen
         selectedBlock.style.border = '';
+        block.style.border = '';
+        roundWins = 0;
+        difficulty = 1;
+        updateProgress(username, roundWins, difficulty);
+        resetGame();
       }
       selectedBlock = null;
     } else {
@@ -163,8 +177,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       if (timeLeft === 0) {
         clearInterval(timerInterval);
         roundWins = 0;
-        updateRoundWins(username, roundWins);
         difficulty = 1;
+        updateProgress(username, roundWins, difficulty);
         resetGame();
       }
     }, 1000);
@@ -217,19 +231,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
     firebase.database().ref('usernames/' + username).set(true);
   }
 
-  function checkRoundWins(username) {
-    return firebase.database().ref('roundWins/' + username).once('value')
-      .then(snapshot => snapshot.exists() ? snapshot.val().wins : 0);
+  function loadProgress(username) {
+    return firebase.database().ref('progress/' + username).once('value')
+      .then(snapshot => snapshot.exists() ? snapshot.val() : { roundWins: 0, difficulty: 1 });
   }
 
-  function updateRoundWins(username, wins) {
-    firebase.database().ref('roundWins/' + username).set({ wins: wins });
+  function updateProgress(username, roundWins, difficulty) {
+    firebase.database().ref('progress/' + username).set({ roundWins: roundWins, difficulty: difficulty });
   }
 
   window.onload = () => {
     if (username) {
-      checkRoundWins(username).then((wins) => {
-        roundWins = wins;
+      loadProgress(username).then((progress) => {
+        roundWins = progress.roundWins;
+        difficulty = progress.difficulty;
+        difficultyElement.innerText = `Schwierigkeit: ${difficulty}`;
         showGame();
       });
     }

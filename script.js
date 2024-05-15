@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   function setupGame() {
     console.log('Setting up game...');
     const baseColor = "#3498db";
-    const colors = generateLABColors(baseColor, 6, difficulty * 2); // Start with much larger variation
+    const colors = generateLABColors(baseColor, 6, 10); // Start with very large variation for initial ease
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
     rightColumn.innerHTML = '';
@@ -175,14 +175,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
           clearInterval(timerInterval);
           roundWins++;
           roundWinsElement.innerText = `Runden: ${roundWins}`;
-          updateProgress(username, roundWins, difficulty + 0.1); // Increase difficulty even more slowly
+          updateProgress(username, roundWins, difficulty + 0.05); // Increase difficulty very slowly
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          difficulty = Math.min(difficulty + 0.1, 10);  // Schwierigkeit viel langsamer erhöhen
+          difficulty = Math.min(difficulty + 0.05, 10);  // Increase difficulty very slowly
           resetGame();
         }
       } else {

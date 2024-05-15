@@ -57,15 +57,10 @@ body {
 .color-block:active {
   transform: scale(0.95);
 }
-#timer, #highscore {
+#timer, #highscore, #highscore-list {
   margin-top: 2rem;
   font-size: 2rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-}
-#highscore-list {
-  margin-top: 2rem;
-  font-size: 2rem;
-  text-align: center;
 }
 
 /* Responsive design for smaller screens */

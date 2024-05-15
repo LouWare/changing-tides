@@ -84,27 +84,58 @@ document.addEventListener('DOMContentLoaded', (event) => {
     loadHighscores();
   }
 
-  function generateRandomColor(baseColor, variation) {
-    const base = parseInt(baseColor.slice(1), 16);
-    const r = Math.min(255, Math.max(0, (base >> 16) + Math.floor((Math.random() - 0.5) * variation)));
-    const g = Math.min(255, Math.max(0, ((base >> 8) & 0xFF) + Math.floor((Math.random() - 0.5) * variation)));
-    const b = Math.min(255, Math.max(0, (base & 0xFF) + Math.floor((Math.random() - 0.5) * variation)));
-    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  function labToRgb(l, a, b) {
+    let y = (l + 16) / 116;
+    let x = a / 500 + y;
+    let z = y - b / 200;
+    const r = Math.round(255 * (x > 0.008856 ? x * x * x : (x - 16 / 116) / 7.787));
+    const g = Math.round(255 * (y > 0.008856 ? y * y * y : (y - 16 / 116) / 7.787));
+    const bComp = Math.round(255 * (z > 0.008856 ? z * z * z : (z - 16 / 116) / 7.787));
+    return `rgb(${r}, ${g}, ${bComp})`;
   }
 
-  function generateColors() {
-    const baseColor = '#FFCCCC';
-    const variation = Math.floor(150 / difficulty);
-    const colors = [];
-    for (let i = 0; i < 6; i++) {
-      colors.push(generateRandomColor(baseColor, variation));
+  function rgbToLab(rgb) {
+    const r = rgb[0] / 255;
+    const g = rgb[1] / 255;
+    const b = rgb[2] / 255;
+
+    const x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+    const y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
+    const z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+
+    const lab = [
+      116 * (y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116)) - 16,
+      500 * ((x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + (16 / 116)) - (y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116))),
+      200 * ((y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116)) - (z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + (16 / 116)))
+    ];
+    return lab;
+  }
+
+  function hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return [r, g, b];
+  }
+
+  function generateLABColors(baseColor, steps, variation) {
+    const baseRgb = hexToRgb(baseColor);
+    const baseLab = rgbToLab(baseRgb);
+
+    const colors = [baseColor];
+    for (let i = 1; i < steps; i++) {
+      const newL = baseLab[0] - (i * variation);
+      const newColor = labToRgb(newL, baseLab[1], baseLab[2]);
+      colors.push(newColor);
     }
     return colors;
   }
 
   function setupGame() {
     console.log('Setting up game...');
-    const colors = generateColors();
+    const baseColor = "#3498db";
+    const colors = generateLABColors(baseColor, 6, difficulty * 1.5); // Increase the variation factor as the difficulty increases
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
     rightColumn.innerHTML = '';

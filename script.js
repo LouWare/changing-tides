@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const startButton = document.getElementById('start-button');
   const timerElement = document.getElementById('timer');
   const highscoreElement = document.getElementById('highscore');
+  const roundWinsElement = document.getElementById('round-wins');
   const highscoreListElement = document.getElementById('highscore-list');
   const leftColumn = document.getElementById('left-column');
   const rightColumn = document.getElementById('right-column');
@@ -37,12 +38,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let timerInterval;
 
   highscoreElement.innerText = `Highscore: ${highscore}`;
+  roundWinsElement.innerText = `Runden: ${roundWins}`;
 
   if (username) {
     usernameContainer.style.display = 'none';
     loadProgress(username).then((progress) => {
       roundWins = progress.roundWins;
       difficulty = progress.difficulty;
+      roundWinsElement.innerText = `Runden: ${roundWins}`;
       showGame();
     });
   } else {
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             loadProgress(username).then((progress) => {
               roundWins = progress.roundWins;
               difficulty = progress.difficulty;
+              roundWinsElement.innerText = `Runden: ${roundWins}`;
               showGame();
             });
           } else {
@@ -74,6 +78,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     gameBoard.style.display = 'flex';
     timerElement.style.display = 'block';
     highscoreElement.style.display = 'block';
+    roundWinsElement.style.display = 'block';
     highscoreListElement.style.display = 'block';
     setupGame();
     loadHighscores();
@@ -138,6 +143,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (pairs === 6) {
           clearInterval(timerInterval);
           roundWins++;
+          roundWinsElement.innerText = `Runden: ${roundWins}`;
           updateProgress(username, roundWins, difficulty + 0.5);
           if (roundWins > highscore) {
             highscore = roundWins;
@@ -153,6 +159,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         selectedBlock.style.border = '';
         block.style.border = '';
         roundWins = 0;
+        roundWinsElement.innerText = `Runden: ${roundWins}`;
         difficulty = 1;
         updateProgress(username, roundWins, difficulty);
         resetGame();
@@ -171,6 +178,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       if (timeLeft === 0) {
         clearInterval(timerInterval);
         roundWins = 0;
+        roundWinsElement.innerText = `Runden: ${roundWins}`;
         difficulty = 1;
         updateProgress(username, roundWins, difficulty);
         resetGame();
@@ -239,6 +247,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       loadProgress(username).then((progress) => {
         roundWins = progress.roundWins;
         difficulty = progress.difficulty;
+        roundWinsElement.innerText = `Runden: ${roundWins}`;
         showGame();
       });
     }

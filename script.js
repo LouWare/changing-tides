@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const colors = [baseColor];
     for (let i = 1; i < steps; i++) {
-      const newL = Math.max(baseLab[0] - (i * variation), 40); // Ensure L value is not too low
+      const newL = Math.max(baseLab[0] - (i * variation), 60); // Ensure L value is not too low
       const newColor = labToRgb(newL, baseLab[1], baseLab[2]);
       colors.push(newColor);
     }

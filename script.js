@@ -88,16 +88,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let y = (l + 16) / 116;
     let x = a / 500 + y;
     let z = y - b / 200;
-    const r = Math.round(255 * (x > 0.008856 ? x * x * x : (x - 16 / 116) / 7.787));
-    const g = Math.round(255 * (y > 0.008856 ? y * y * y : (y - 16 / 116) / 7.787));
-    const bComp = Math.round(255 * (z > 0.008856 ? z * z * z : (z - 16 / 116) / 7.787));
-    return `rgb(${r}, ${g}, ${bComp})`;
+    x = 0.95047 * (x > 0.008856 ? x * x * x : (x - 16 / 116) / 7.787);
+    y = 1.00000 * (y > 0.008856 ? y * y * y : (y - 16 / 116) / 7.787);
+    z = 1.08883 * (z > 0.008856 ? z * z * z : (z - 16 / 116) / 7.787);
+    const r = x *  3.2406 + y * -1.5372 + z * -0.4986;
+    const g = x * -0.9689 + y *  1.8758 + z *  0.0415;
+    const bComp = x *  0.0557 + y * -0.2040 + z *  1.0570;
+    return `rgb(${Math.round(Math.max(0, Math.min(1, r)) * 255)}, ${Math.round(Math.max(0, Math.min(1, g)) * 255)}, ${Math.round(Math.max(0, Math.min(1, bComp)) * 255)})`;
   }
 
   function rgbToLab(rgb) {
-    const r = rgb[0] / 255;
-    const g = rgb[1] / 255;
-    const b = rgb[2] / 255;
+    let r = rgb[0] / 255;
+    let g = rgb[1] / 255;
+    let b = rgb[2] / 255;
+
+    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
 
     const x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
     const y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
@@ -125,7 +132,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const colors = [baseColor];
     for (let i = 1; i < steps; i++) {
-      const newL = baseLab[0] - (i * variation);
+      const newL = Math.max(baseLab[0] - (i * variation), 40); // Ensure L value is not too low
       const newColor = labToRgb(newL, baseLab[1], baseLab[2]);
       colors.push(newColor);
     }
@@ -175,14 +182,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
           clearInterval(timerInterval);
           roundWins++;
           roundWinsElement.innerText = `Runden: ${roundWins}`;
-          updateProgress(username, roundWins, difficulty + 0.05); // Increase difficulty very slowly
+          updateProgress(username, roundWins, difficulty + 0.25); // Increase difficulty very slowly
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          difficulty = Math.min(difficulty + 0.05, 10);  // Increase difficulty very slowly
+          difficulty = Math.min(difficulty + 0.25, 10);  // Increase difficulty very slowly
           resetGame();
         }
       } else {

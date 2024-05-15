@@ -3,15 +3,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   // Your web app's Firebase configuration
   const firebaseConfig = {
-  apiKey: "AIzaSyBe-bWNvD8oTHZ7K6XATeNqB5o5tTcpC_0",
-  authDomain: "changing-tides-2e060.firebaseapp.com",
-  databaseURL: "https://changing-tides-2e060-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "changing-tides-2e060",
-  storageBucket: "changing-tides-2e060.appspot.com",
-  messagingSenderId: "6059265616",
-  appId: "1:6059265616:web:fdc6b2620de3eb860e0b55",
-  measurementId: "G-3V0P770K0D"
-};
+    apiKey: "AIzaSyBe-bWNvD8oTHZ7K6XATeNqB5o5tTcpC_0",
+    authDomain: "changing-tides-2e060.firebaseapp.com",
+    databaseURL: "https://changing-tides-2e060-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "changing-tides-2e060",
+    storageBucket: "changing-tides-2e060.appspot.com",
+    messagingSenderId: "6059265616",
+    appId: "1:6059265616:web:fdc6b2620de3eb860e0b55",
+    measurementId: "G-3V0P770K0D"
+  };
+
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
@@ -19,7 +20,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let username = localStorage.getItem('username');
   let selectedBlock = null;
   let pairs = 0;
-  let highscore = localStorage.getItem('highscore') || 0;
+  let highscore = parseInt(localStorage.getItem('highscore')) || 0;
   let roundWins = 0;
   let timeLeft = 60;
   let difficulty = 1;
@@ -43,6 +44,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       roundWins = wins;
       showGame();
     });
+  } else {
+    usernameContainer.style.display = 'flex';
   }
 
   startButton.addEventListener('click', () => {

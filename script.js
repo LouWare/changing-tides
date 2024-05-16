@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', (event) => {
-  console.log('DOM fully loaded and parsed');
-
   // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyBe-bWNvD8oTHZ7K6XATeNqB5o5tTcpC_0",
@@ -143,13 +141,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
       leftBlock.className = 'color-block';
       leftBlock.style.backgroundColor = color;
       leftBlock.dataset.color = index;
-      leftBlock.style.top = `${index * 10}rem`; // Initial position
 
       const rightBlock = document.createElement('div');
       rightBlock.className = 'color-block';
       rightBlock.style.backgroundColor = shuffledColors[index];
       rightBlock.dataset.color = colors.indexOf(shuffledColors[index]);
-      rightBlock.style.top = `${index * 10}rem`; // Initial position
 
       leftColumn.appendChild(leftBlock);
       rightColumn.appendChild(rightBlock);
@@ -157,6 +153,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
       leftBlock.addEventListener('click', handleBlockClick);
       rightBlock.addEventListener('click', handleBlockClick);
     });
+    realignBlocks(leftColumn);
+    realignBlocks(rightColumn);
   }
 
   function handleBlockClick(event) {
@@ -222,8 +220,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   function realignBlocks(column) {
     const blocks = Array.from(column.children);
     blocks.forEach((block, index) => {
-      block.style.top = `${index * 10}rem`; // Update position with animation
+      block.style.order = index;
+      block.classList.add('moving');
+      block.style.top = `${index * 11}rem`; // Adjust according to block height and gap
     });
+    setTimeout(() => {
+      blocks.forEach(block => block.classList.remove('moving'));
+    }, 500);
   }
 
   function startTimer() {
@@ -297,4 +300,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
     firebase.database().ref('progress/' + username).set({ roundWins: roundWins, difficulty: difficulty });
   }
 
-  window.onload = () =>
+  window.onload = () => {
+    if (username) {
+      loadProgress(username).then((progress) => {
+        roundWins = progress.roundWins;
+        difficulty = progress.difficulty;
+        roundWinsElement.innerText = `Runden: ${roundWins}`;
+        showGame();
+      });
+    }
+  };
+});

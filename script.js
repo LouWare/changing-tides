@@ -170,8 +170,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         block.style.border = '2px solid green';
         pairs++;
         setTimeout(() => {
-          console.log('Removing blocks', selectedBlock, block);
+          console.log('Removing selected block:', selectedBlock);
           removeBlock(selectedBlock);
+        }, 500);
+        setTimeout(() => {
+          console.log('Removing block:', block);
           removeBlock(block);
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);

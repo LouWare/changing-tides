@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function setupGame() {
-    console.log('Setting up game...');
     const colors = generateColors();
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
@@ -144,11 +143,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
       leftBlock.className = 'color-block';
       leftBlock.style.backgroundColor = color;
       leftBlock.dataset.color = index;
+      leftBlock.style.top = `${index * 10}rem`; // Initial position
 
       const rightBlock = document.createElement('div');
       rightBlock.className = 'color-block';
       rightBlock.style.backgroundColor = shuffledColors[index];
       rightBlock.dataset.color = colors.indexOf(shuffledColors[index]);
+      rightBlock.style.top = `${index * 10}rem`; // Initial position
 
       leftColumn.appendChild(leftBlock);
       rightColumn.appendChild(rightBlock);
@@ -221,13 +222,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   function realignBlocks(column) {
     const blocks = Array.from(column.children);
     blocks.forEach((block, index) => {
-      block.style.order = index;
-      block.style.transition = 'transform 0.5s ease';
-      block.style.transform = `translateY(${index * 100}%`;
-      // Entfernen der transform-Eigenschaft nach der Animation
-      setTimeout(() => {
-        block.style.transform = '';
-      }, 500);
+      block.style.top = `${index * 10}rem`; // Update position with animation
     });
   }
 
@@ -302,14 +297,4 @@ document.addEventListener('DOMContentLoaded', (event) => {
     firebase.database().ref('progress/' + username).set({ roundWins: roundWins, difficulty: difficulty });
   }
 
-  window.onload = () => {
-    if (username) {
-      loadProgress(username).then((progress) => {
-        roundWins = progress.roundWins;
-        difficulty = progress.difficulty;
-        roundWinsElement.innerText = `Runden: ${roundWins}`;
-        showGame();
-      });
-    }
-  };
-});
+  window.onload = () =>

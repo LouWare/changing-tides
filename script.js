@@ -170,11 +170,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
         block.style.border = '2px solid green';
         pairs++;
         setTimeout(() => {
-          selectedBlock.style.visibility = 'hidden';
-          block.style.visibility = 'hidden';
+          leftColumn.removeChild(selectedBlock);
+          rightColumn.removeChild(block);
+          realignBlocks(leftColumn);
+          realignBlocks(rightColumn);
         }, 500);
-        block.removeEventListener('click', handleBlockClick);
-        selectedBlock.removeEventListener('click', handleBlockClick);
         if (pairs === 6) {
           clearInterval(timerInterval);
           roundWins++;
@@ -208,6 +208,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
       selectedBlock = block;
       block.style.border = '4px solid blue';  // Deutlichere Hervorhebung
     }
+  }
+
+  function realignBlocks(column) {
+    const blocks = Array.from(column.children);
+    blocks.forEach((block, index) => {
+      block.style.order = index;
+    });
   }
 
   function startTimer() {

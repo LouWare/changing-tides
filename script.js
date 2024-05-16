@@ -212,8 +212,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function removeBlock(block) {
-    console.log('Removing block:', block);
-    block.parentNode.removeChild(block);
+    if (block && block.parentNode) {
+      console.log('Removing block:', block);
+      block.parentNode.removeChild(block);
+    } else {
+      console.log('Block already removed or parent node is null:', block);
+    }
   }
 
   function realignBlocks(column) {

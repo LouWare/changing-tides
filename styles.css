@@ -27,6 +27,12 @@ body {
   margin-top: 1rem;
   cursor: pointer;
 }
+#explanation-text {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #555;
+}
 #game-board {
   display: flex;
   justify-content: space-between;

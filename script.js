@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const usernameContainer = document.getElementById('username-container');
   const usernameInput = document.getElementById('username-input');
   const startButton = document.getElementById('start-button');
+  const explanationText = document.getElementById('explanation-text');
   const timerElement = document.getElementById('timer');
   const highscoreElement = document.getElementById('highscore');
   const roundWinsElement = document.getElementById('round-wins');
@@ -42,6 +43,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   if (username) {
     usernameContainer.style.display = 'none';
+    if (localStorage.getItem('hideExplanation') !== 'true') {
+      explanationText.style.display = 'block';
+    } else {
+      explanationText.style.display = 'none';
+    }
     loadProgress(username).then((progress) => {
       roundWins = progress.roundWins;
       difficulty = progress.difficulty;
@@ -50,6 +56,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
   } else {
     usernameContainer.style.display = 'flex';
+    explanationText.style.display = 'none';
   }
 
   startButton.addEventListener('click', () => {
@@ -61,6 +68,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             localStorage.setItem('username', username);
             saveUsername(username);
             usernameContainer.style.display = 'none';
+            explanationText.style.display = 'block';
             loadProgress(username).then((progress) => {
               roundWins = progress.roundWins;
               difficulty = progress.difficulty;
@@ -167,14 +175,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
           clearInterval(timerInterval);
           roundWins++;
           roundWinsElement.innerText = `Runden: ${roundWins}`;
-          updateProgress(username, roundWins, difficulty + 0.1);  // Schwierigkeit signifikant langsamer erhöhen
+          updateProgress(username, roundWins, difficulty + 0.05);  // Schwierigkeit leicht erhöhen
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          difficulty = Math.min(difficulty + 0.1, 10);  // Schwierigkeit langsamer erhöhen
+          difficulty = Math.min(difficulty + 0.05, 10);  // Schwierigkeit leicht erhöhen
+          if (roundWins >= 2) {
+            explanationText.style.display = 'none';
+            localStorage.setItem('hideExplanation', 'true');
+          }
           resetGame();
         }
       } else {

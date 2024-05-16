@@ -170,12 +170,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
         block.style.border = '2px solid green';
         pairs++;
         setTimeout(() => {
-          console.log('Removing selected block:', selectedBlock);
-          removeBlock(selectedBlock);
+          if (selectedBlock && selectedBlock.parentNode) {
+            console.log('Removing selected block:', selectedBlock);
+            selectedBlock.parentNode.removeChild(selectedBlock);
+          } else {
+            console.log('Selected block already removed or parent node is null:', selectedBlock);
+          }
         }, 500);
         setTimeout(() => {
-          console.log('Removing block:', block);
-          removeBlock(block);
+          if (block && block.parentNode) {
+            console.log('Removing block:', block);
+            block.parentNode.removeChild(block);
+          } else {
+            console.log('Block already removed or parent node is null:', block);
+          }
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);
         }, 500);

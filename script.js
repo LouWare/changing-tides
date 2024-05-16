@@ -84,65 +84,50 @@ document.addEventListener('DOMContentLoaded', (event) => {
     loadHighscores();
   }
 
-  function labToRgb(l, a, b) {
-    let y = (l + 16) / 116;
-    let x = a / 500 + y;
-    let z = y - b / 200;
-    x = 0.95047 * (x > 0.008856 ? x * x * x : (x - 16 / 116) / 7.787);
-    y = 1.00000 * (y > 0.008856 ? y * y * y : (y - 16 / 116) / 7.787);
-    z = 1.08883 * (z > 0.008856 ? z * z * z : (z - 16 / 116) / 7.787);
-    const r = x *  3.2406 + y * -1.5372 + z * -0.4986;
-    const g = x * -0.9689 + y *  1.8758 + z *  0.0415;
-    const bComp = x *  0.0557 + y * -0.2040 + z *  1.0570;
-    return `rgb(${Math.round(Math.max(0, Math.min(1, r)) * 255)}, ${Math.round(Math.max(0, Math.min(1, g)) * 255)}, ${Math.round(Math.max(0, Math.min(1, bComp)) * 255)})`;
+  function generateRandomColorLab(baseLab, variation) {
+    const randomOffset = () => (Math.random() - 0.5) * variation;
+    const L = Math.min(100, Math.max(0, baseLab[0] + randomOffset()));
+    const a = Math.min(128, Math.max(-128, baseLab[1] + randomOffset()));
+    const b = Math.min(128, Math.max(-128, baseLab[2] + randomOffset()));
+    return [L, a, b];
   }
 
-  function rgbToLab(rgb) {
-    let r = rgb[0] / 255;
-    let g = rgb[1] / 255;
-    let b = rgb[2] / 255;
-
-    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
-    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
-    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
-
-    const x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
-    const y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
-    const z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
-
-    const lab = [
-      116 * (y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116)) - 16,
-      500 * ((x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + (16 / 116)) - (y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116))),
-      200 * ((y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + (16 / 116)) - (z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + (16 / 116)))
-    ];
-    return lab;
+  function labToRgb(lab) {
+    let y = (lab[0] + 16) / 116;
+    let x = lab[1] / 500 + y;
+    let z = y - lab[2] / 200;
+    [x, y, z] = [x, y, z].map(v => {
+      let p = Math.pow(v, 3);
+      return p > 0.008856 ? p : (v - 16 / 116) / 7.787;
+    });
+    x *= 95.047;
+    y *= 100;
+    z *= 108.883;
+    [x, y, z] = [x, y, z].map(v => v / 100);
+    let r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+    let g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+    let b = x * 0.0557 + y * -0.2040 + z * 1.0570;
+    [r, g, b] = [r, g, b].map(v => {
+      return v > 0.0031308 ? 1.055 * Math.pow(v, 1 / 2.4) - 0.055 : v * 12.92;
+    });
+    [r, g, b] = [r, g, b].map(v => Math.min(255, Math.max(0, Math.round(v * 255))));
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
-  function hexToRgb(hex) {
-    const bigint = parseInt(hex.slice(1), 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    return [r, g, b];
-  }
-
-  function generateLABColors(baseColor, steps, variation) {
-    const baseRgb = hexToRgb(baseColor);
-    const baseLab = rgbToLab(baseRgb);
-
-    const colors = [baseColor];
-    for (let i = 1; i < steps; i++) {
-      const newL = Math.max(baseLab[0] - (i * variation), 60); // Ensure L value is not too low
-      const newColor = labToRgb(newL, baseLab[1], baseLab[2]);
-      colors.push(newColor);
+  function generateColors() {
+    const baseLab = [70, 20, 20];
+    const variation = Math.floor(60 / difficulty);  // Spiel startet einfacher und bleibt länger einfach
+    const colors = [];
+    for (let i = 0; i < 6; i++) {
+      const colorLab = generateRandomColorLab(baseLab, variation);
+      colors.push(labToRgb(colorLab));
     }
     return colors;
   }
 
   function setupGame() {
     console.log('Setting up game...');
-    const baseColor = "#3498db";
-    const colors = generateLABColors(baseColor, 6, 10); // Start with very large variation for initial ease
+    const colors = generateColors();
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
     rightColumn.innerHTML = '';
@@ -182,14 +167,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
           clearInterval(timerInterval);
           roundWins++;
           roundWinsElement.innerText = `Runden: ${roundWins}`;
-          updateProgress(username, roundWins, difficulty + 0.25); // Increase difficulty very slowly
+          updateProgress(username, roundWins, difficulty + 0.5);
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          difficulty = Math.min(difficulty + 0.25, 10);  // Increase difficulty very slowly
+          difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
           resetGame();
         }
       } else {

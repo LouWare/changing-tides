@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   let pairs = 0;
   let highscore = parseInt(localStorage.getItem('highscore')) || 0;
   let roundWins = 0;
-  let timeLeft = 60;
+  let timeLeft = 30;  // Verfügbare Zeit halbiert
   let difficulty = 1;
   let timerStarted = false;
   const usernameContainer = document.getElementById('username-container');
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function generateColors() {
     const baseLab = [70, 20, 20];
-    const variation = Math.floor(60 / difficulty);  // Spiel startet einfacher und bleibt länger einfach
+    const variation = Math.floor(120 / difficulty);  // Schwierigkeit langsamer erhöhen
     const colors = [];
     for (let i = 0; i < 6; i++) {
       const colorLab = generateRandomColorLab(baseLab, variation);
@@ -167,14 +167,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
           clearInterval(timerInterval);
           roundWins++;
           roundWinsElement.innerText = `Runden: ${roundWins}`;
-          updateProgress(username, roundWins, difficulty + 0.5);
+          updateProgress(username, roundWins, difficulty + 0.1);  // Schwierigkeit signifikant langsamer erhöhen
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          difficulty = Math.min(difficulty + 0.5, 10);  // Schwierigkeit langsamer erhöhen
+          difficulty = Math.min(difficulty + 0.1, 10);  // Schwierigkeit langsamer erhöhen
           resetGame();
         }
       } else {
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function resetGame() {
     pairs = 0;
-    timeLeft = 60;
+    timeLeft = 30;  // Verfügbare Zeit halbiert
     timerElement.innerText = `Zeit: ${timeLeft}`;
     setupGame();
     timerStarted = false;

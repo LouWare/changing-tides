@@ -170,8 +170,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         block.style.border = '2px solid green';
         pairs++;
         setTimeout(() => {
-          leftColumn.removeChild(selectedBlock);
-          rightColumn.removeChild(block);
+          removeBlock(selectedBlock);
+          removeBlock(block);
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);
         }, 500);
@@ -208,6 +208,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
       selectedBlock = block;
       block.style.border = '4px solid blue';  // Deutlichere Hervorhebung
     }
+  }
+
+  function removeBlock(block) {
+    block.parentNode.removeChild(block);
   }
 
   function realignBlocks(column) {

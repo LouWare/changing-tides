@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', (event) => {
+  console.log('DOM fully loaded and parsed');
+
   // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyBe-bWNvD8oTHZ7K6XATeNqB5o5tTcpC_0",
@@ -132,6 +134,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function setupGame() {
+    console.log('Setting up game...');
     const colors = generateColors();
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
@@ -153,8 +156,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
       leftBlock.addEventListener('click', handleBlockClick);
       rightBlock.addEventListener('click', handleBlockClick);
     });
-    realignBlocks(leftColumn);
-    realignBlocks(rightColumn);
   }
 
   function handleBlockClick(event) {
@@ -172,12 +173,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
         pairs++;
         setTimeout(() => {
           if (tempSelectedBlock && tempSelectedBlock.parentNode) {
+            console.log('Removing selected block:', tempSelectedBlock);
             tempSelectedBlock.parentNode.removeChild(tempSelectedBlock);
+          } else {
+            console.log('Selected block already removed or parent node is null:', tempSelectedBlock);
           }
         }, 500);
         setTimeout(() => {
           if (tempBlock && tempBlock.parentNode) {
+            console.log('Removing block:', tempBlock);
             tempBlock.parentNode.removeChild(tempBlock);
+          } else {
+            console.log('Block already removed or parent node is null:', tempBlock);
           }
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);
@@ -217,16 +224,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   }
 
+  function removeBlock(block) {
+    if (block && block.parentNode) {
+      console.log('Removing block:', block);
+      block.parentNode.removeChild(block);
+    } else {
+      console.log('Block already removed or parent node is null:', block);
+    }
+  }
+
   function realignBlocks(column) {
     const blocks = Array.from(column.children);
     blocks.forEach((block, index) => {
       block.style.order = index;
-      block.classList.add('moving');
-      block.style.top = `${index * 11}rem`; // Adjust according to block height and gap
     });
-    setTimeout(() => {
-      blocks.forEach(block => block.classList.remove('moving'));
-    }, 500);
   }
 
   function startTimer() {

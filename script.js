@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function generateColors() {
     const baseLab = [70, 20, 20];
-    const variation = Math.floor(120 / difficulty);  // Schwierigkeit langsamer erhöhen
+    const variation = Math.floor(100 / difficulty);  // Schwierigkeit langsamer erhöhen
     const colors = [];
     for (let i = 0; i < 6; i++) {
       const colorLab = generateRandomColorLab(baseLab, variation);
@@ -169,20 +169,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
         selectedBlock.style.border = '2px solid green';
         block.style.border = '2px solid green';
         pairs++;
+        setTimeout(() => {
+          selectedBlock.style.visibility = 'hidden';
+          block.style.visibility = 'hidden';
+        }, 500);
         block.removeEventListener('click', handleBlockClick);
         selectedBlock.removeEventListener('click', handleBlockClick);
         if (pairs === 6) {
           clearInterval(timerInterval);
           roundWins++;
           roundWinsElement.innerText = `Runden: ${roundWins}`;
-          updateProgress(username, roundWins, difficulty + 0.05);  // Schwierigkeit leicht erhöhen
+          updateProgress(username, roundWins, difficulty + 0.2);  // Schwierigkeit leicht erhöhen
           if (roundWins > highscore) {
             highscore = roundWins;
             localStorage.setItem('highscore', highscore);
             highscoreElement.innerText = `Highscore: ${highscore}`;
             updateHighscore(username, highscore);
           }
-          difficulty = Math.min(difficulty + 0.05, 10);  // Schwierigkeit leicht erhöhen
+          difficulty = Math.min(difficulty + 0.2, 10);  // Schwierigkeit leicht erhöhen
           if (roundWins >= 2) {
             explanationText.style.display = 'none';
             localStorage.setItem('hideExplanation', 'true');
@@ -202,7 +206,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
       selectedBlock = null;
     } else {
       selectedBlock = block;
-      block.style.border = '2px solid blue';
+      block.style.border = '4px solid blue';  // Deutlichere Hervorhebung
     }
   }
 

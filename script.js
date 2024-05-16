@@ -173,18 +173,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         pairs++;
         setTimeout(() => {
           if (tempSelectedBlock && tempSelectedBlock.parentNode) {
-            console.log('Removing selected block:', tempSelectedBlock);
             tempSelectedBlock.parentNode.removeChild(tempSelectedBlock);
-          } else {
-            console.log('Selected block already removed or parent node is null:', tempSelectedBlock);
           }
         }, 500);
         setTimeout(() => {
           if (tempBlock && tempBlock.parentNode) {
-            console.log('Removing block:', tempBlock);
             tempBlock.parentNode.removeChild(tempBlock);
-          } else {
-            console.log('Block already removed or parent node is null:', tempBlock);
           }
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);
@@ -224,19 +218,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   }
 
-  function removeBlock(block) {
-    if (block && block.parentNode) {
-      console.log('Removing block:', block);
-      block.parentNode.removeChild(block);
-    } else {
-      console.log('Block already removed or parent node is null:', block);
-    }
-  }
-
   function realignBlocks(column) {
     const blocks = Array.from(column.children);
     blocks.forEach((block, index) => {
       block.style.order = index;
+      block.style.transition = 'transform 0.5s ease';
+      block.style.transform = `translateY(${index * 100}%`;
+      // Entfernen der transform-Eigenschaft nach der Animation
+      setTimeout(() => {
+        block.style.transform = '';
+      }, 500);
     });
   }
 

@@ -43,7 +43,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  position: relative;
 }
 .color-block {
   width: 10rem;
@@ -57,8 +56,7 @@ body {
   font-weight: bold;
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s, border 0.2s, top 0.5s ease; /* Added top transition for smooth movement */
-  position: absolute;
+  transition: transform 0.2s, border 0.2s;
 }
 .color-block:active {
   transform: scale(0.95);

@@ -166,23 +166,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
     const block = event.target;
     if (selectedBlock) {
       if (selectedBlock.dataset.color === block.dataset.color && selectedBlock !== block) {
+        const tempSelectedBlock = selectedBlock;
+        const tempBlock = block;
         selectedBlock.style.border = '2px solid green';
         block.style.border = '2px solid green';
         pairs++;
         setTimeout(() => {
-          if (selectedBlock && selectedBlock.parentNode) {
-            console.log('Removing selected block:', selectedBlock);
-            selectedBlock.parentNode.removeChild(selectedBlock);
+          if (tempSelectedBlock && tempSelectedBlock.parentNode) {
+            console.log('Removing selected block:', tempSelectedBlock);
+            tempSelectedBlock.parentNode.removeChild(tempSelectedBlock);
           } else {
-            console.log('Selected block already removed or parent node is null:', selectedBlock);
+            console.log('Selected block already removed or parent node is null:', tempSelectedBlock);
           }
         }, 500);
         setTimeout(() => {
-          if (block && block.parentNode) {
-            console.log('Removing block:', block);
-            block.parentNode.removeChild(block);
+          if (tempBlock && tempBlock.parentNode) {
+            console.log('Removing block:', tempBlock);
+            tempBlock.parentNode.removeChild(tempBlock);
           } else {
-            console.log('Block already removed or parent node is null:', block);
+            console.log('Block already removed or parent node is null:', tempBlock);
           }
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);

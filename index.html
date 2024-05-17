@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Farbverbindungs-Spiel</title>
+<title>Farbverbindungs-Spiel für Mobilgeräte</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="username-container">
-  <input type="text" id="username-input" placeholder="Gib deinen Namen ein" required>
-  <button id="start-button">Spiel starten</button>
+  <input type="text" id="username-input" placeholder="Gib deinen Nutzernamen ein">
+  <button id="start-button">Starten</button>
 </div>
-<div id="explanation-text">
-  <p>Verbinde die Farben auf beiden Seiten. Die Zeit läuft!</p>
-</div>
+<div id="explanation-text">Verbinde die Farbblöcke. Die Zeit rennt und es wird immer schwieriger!</div>
 <div id="game-board">
   <div id="left-column" class="color-column"></div>
   <div id="right-column" class="color-column"></div>
@@ -23,11 +21,15 @@
   <div id="round-wins">Runden: 0</div>
   <div id="highscore">Highscore: 0</div>
 </div>
-<div id="highscore-list">
-  <h3>Top Highscores:</h3>
+<div id="highscore-list"></div>
+<div id="comment-section">
+  <h3>Kommentare:</h3>
+  <div id="comment-list"></div>
+  <textarea id="comment-input" placeholder="Schreibe einen Kommentar..."></textarea>
+  <button id="comment-button">Kommentar posten</button>
 </div>
-<script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.2.0/firebase-database.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

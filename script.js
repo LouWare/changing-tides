@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const highscoreListElement = document.getElementById('highscore-list');
   const leftColumn = document.getElementById('left-column');
   const rightColumn = document.getElementById('right-column');
+  const commentSection = document.getElementById('comment-section');
+  const commentList = document.getElementById('comment-list');
+  const commentInput = document.getElementById('comment-input');
+  const commentButton = document.getElementById('comment-button');
   const gameBoard = document.getElementById('game-board');
   let timerInterval;
 
@@ -82,14 +86,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   });
 
+  commentButton.addEventListener('click', () => {
+    const comment = commentInput.value.trim();
+    if (comment) {
+      postComment(username, comment);
+      commentInput.value = '';
+    }
+  });
+
   function showGame() {
     gameBoard.style.display = 'flex';
     timerElement.style.display = 'block';
     highscoreElement.style.display = 'block';
     roundWinsElement.style.display = 'block';
     highscoreListElement.style.display = 'block';
+    commentSection.style.display = 'block';
     setupGame();
     loadHighscores();
+    loadComments();
   }
 
   function generateRandomColorLab(baseLab, variation) {
@@ -134,7 +148,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function setupGame() {
-    console.log('Setting up game...');
     const colors = generateColors();
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
@@ -173,18 +186,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         pairs++;
         setTimeout(() => {
           if (tempSelectedBlock && tempSelectedBlock.parentNode) {
-            console.log('Removing selected block:', tempSelectedBlock);
             tempSelectedBlock.parentNode.removeChild(tempSelectedBlock);
-          } else {
-            console.log('Selected block already removed or parent node is null:', tempSelectedBlock);
           }
         }, 500);
         setTimeout(() => {
           if (tempBlock && tempBlock.parentNode) {
-            console.log('Removing block:', tempBlock);
             tempBlock.parentNode.removeChild(tempBlock);
-          } else {
-            console.log('Block already removed or parent node is null:', tempBlock);
           }
           realignBlocks(leftColumn);
           realignBlocks(rightColumn);
@@ -221,15 +228,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     } else {
       selectedBlock = block;
       block.style.border = '4px solid blue';  // Deutlichere Hervorhebung
-    }
-  }
-
-  function removeBlock(block) {
-    if (block && block.parentNode) {
-      console.log('Removing block:', block);
-      block.parentNode.removeChild(block);
-    } else {
-      console.log('Block already removed or parent node is null:', block);
     }
   }
 
@@ -309,6 +307,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function updateProgress(username, roundWins, difficulty) {
     firebase.database().ref('progress/' + username).set({ roundWins: roundWins, difficulty: difficulty });
+  }
+
+  function postComment(username, comment) {
+    const commentRef = firebase.database().ref('comments').push();
+    commentRef.set({
+      username: username,
+      comment: comment,
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+      loadComments();
+    });
+  }
+
+  function loadComments() {
+    firebase.database().ref('comments').orderByChild('timestamp').limitToLast(10).once('value', (snapshot) => {
+      commentList.innerHTML = '';
+      snapshot.forEach((childSnapshot) => {
+        const commentData = childSnapshot.val();
+        const commentElement = document.createElement('div');
+        commentElement.innerHTML = `<strong>${commentData.username}:</strong> ${commentData.comment}`;
+        commentList.appendChild(commentElement);
+      });
+    });
   }
 
   window.onload = () => {

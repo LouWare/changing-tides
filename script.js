@@ -134,6 +134,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function setupGame() {
+    console.log('Setting up game...');
     const colors = generateColors();
     const shuffledColors = [...colors].sort(() => Math.random() - 0.5);
     leftColumn.innerHTML = '';
@@ -172,23 +173,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
         pairs++;
         setTimeout(() => {
           if (tempSelectedBlock && tempSelectedBlock.parentNode) {
-            tempSelectedBlock.classList.add('fade-out');
-            tempSelectedBlock.addEventListener('transitionend', () => {
-              tempSelectedBlock.parentNode.removeChild(tempSelectedBlock);
-              realignBlocks(leftColumn);
-              realignBlocks(rightColumn);
-            }, { once: true });
+            console.log('Removing selected block:', tempSelectedBlock);
+            tempSelectedBlock.parentNode.removeChild(tempSelectedBlock);
+          } else {
+            console.log('Selected block already removed or parent node is null:', tempSelectedBlock);
           }
         }, 500);
         setTimeout(() => {
           if (tempBlock && tempBlock.parentNode) {
-            tempBlock.classList.add('fade-out');
-            tempBlock.addEventListener('transitionend', () => {
-              tempBlock.parentNode.removeChild(tempBlock);
-              realignBlocks(leftColumn);
-              realignBlocks(rightColumn);
-            }, { once: true });
+            console.log('Removing block:', tempBlock);
+            tempBlock.parentNode.removeChild(tempBlock);
+          } else {
+            console.log('Block already removed or parent node is null:', tempBlock);
           }
+          realignBlocks(leftColumn);
+          realignBlocks(rightColumn);
         }, 500);
         if (pairs === 6) {
           clearInterval(timerInterval);
@@ -222,6 +221,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
     } else {
       selectedBlock = block;
       block.style.border = '4px solid blue';  // Deutlichere Hervorhebung
+    }
+  }
+
+  function removeBlock(block) {
+    if (block && block.parentNode) {
+      console.log('Removing block:', block);
+      block.parentNode.removeChild(block);
+    } else {
+      console.log('Block already removed or parent node is null:', block);
     }
   }
 

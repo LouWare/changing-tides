@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     commentSection.style.display = 'block';
     setupGame();
     loadHighscores();
-    loadComments();
+    listenForComments(); // Echtzeit-Listener für Kommentare hinzufügen
   }
 
   function generateRandomColorLab(baseLab, variation) {
@@ -320,8 +320,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     });
   }
 
-  function loadComments() {
-    firebase.database().ref('comments').orderByChild('timestamp').limitToLast(10).once('value', (snapshot) => {
+  function listenForComments() {
+    const commentsRef = firebase.database().ref('comments').orderByChild('timestamp').limitToLast(10);
+    commentsRef.on('value', (snapshot) => {
       commentList.innerHTML = '';
       snapshot.forEach((childSnapshot) => {
         const commentData = childSnapshot.val();

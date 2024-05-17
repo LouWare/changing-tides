@@ -310,15 +310,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function postComment(username, comment) {
-    const commentRef = firebase.database().ref('comments').push();
-    commentRef.set({
-      username: username,
-      comment: comment,
-      timestamp: firebase.database.ServerValue.TIMESTAMP
-    }).then(() => {
-      loadComments();
-    });
-  }
+  const commentRef = firebase.database().ref('comments').push();
+  commentRef.set({
+    username: username,
+    comment: comment,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  });
+}
+
 
   function listenForComments() {
     const commentsRef = firebase.database().ref('comments').orderByChild('timestamp').limitToLast(10);
